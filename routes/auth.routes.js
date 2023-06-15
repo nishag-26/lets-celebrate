@@ -16,12 +16,12 @@ const isLoggedOut = require("../middleware/isLoggedOut");
 const isLoggedIn = require("../middleware/isLoggedIn");
 
 // GET /auth/signup
-router.get("/signup", isLoggedOut, (req, res) => {
+router.get("/signup", isLoggedOut, (req, res, next) => {
   res.render("auth/signup");
 });
 
 // POST /auth/signup
-router.post("/signup", isLoggedOut, (req, res) => {
+router.post("/signup", isLoggedOut, (req, res, next) => {
   const { username, email, password } = req.body;
 
   // Check that username, email, and password are provided
@@ -43,7 +43,7 @@ router.post("/signup", isLoggedOut, (req, res) => {
   }
 
   //   ! This regular expression checks password for special characters and minimum length
-  /*
+  
   const regex = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}/;
   if (!regex.test(password)) {
     res
@@ -53,7 +53,7 @@ router.post("/signup", isLoggedOut, (req, res) => {
     });
     return;
   }
-  */
+  
 
   // Create a new user - start by hashing the password
   bcrypt
@@ -67,7 +67,9 @@ router.post("/signup", isLoggedOut, (req, res) => {
       res.redirect("/auth/login");
     })
     .catch((error) => {
+      console.log("error in creating account...", error);
       if (error instanceof mongoose.Error.ValidationError) {
+        console.log("this is a mongoose validator error")
         res.status(500).render("auth/signup", { errorMessage: error.message });
       } else if (error.code === 11000) {
         res.status(500).render("auth/signup", {
@@ -75,13 +77,14 @@ router.post("/signup", isLoggedOut, (req, res) => {
             "Username and email need to be unique. Provide a valid username or email.",
         });
       } else {
+        console.log("this is NOT a mongoose validator error")
         next(error);
       }
     });
 });
 
 // GET /auth/login
-router.get("/login", isLoggedOut, (req, res) => {
+router.get("/login", isLoggedOut, (req, res, next) => {
   res.render("auth/login");
 });
 
@@ -153,4 +156,8 @@ router.get("/logout", isLoggedIn, (req, res) => {
   });
 });
 
+//GET user-profile
+router.get('/user-profile', (req, res) => {
+  res.render("auth/user-profile", {userDetails: req.session.currentUser});
+});
 module.exports = router;
