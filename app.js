@@ -19,17 +19,17 @@ const app = express();
 require("./config")(app);
 
 const capitalize = require("./utils/capitalize");
-const projectName = "let'sCelebrate";
+const projectName = "let's Celebrate";
 
 app.locals.appTitle = `${capitalize(projectName)}`;
 
 // 👇 Start handling routes here
 const indexRoutes = require("./routes/index.routes");
 app.use("/", indexRoutes);
-
+app.use("/", require("./routes/organizer.routes"));
 const authRoutes = require("./routes/auth.routes");
 app.use("/auth", authRoutes);
-app.use("/", require("./routes/organizer.routes"));
+
 
 // ❗ To handle errors. Routes that don't exist or errors that you handle in specific routes
 require("./error-handling")(app);

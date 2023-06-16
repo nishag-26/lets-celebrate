@@ -94,9 +94,23 @@ router.post('/organizers/:organizerId/delete', (req, res, next) => {
   const { organizerId } = req.params;
  
   Organizer.findByIdAndDelete(organizerId)
-    .then(() => res.redirect('/organizers'))
+    .then(() => res.redirect(`/organizers`))
     .catch(error => next(error));
 });
- 
+
+// READ: display details of one organizer
+router.get("/organizers/:organizerId", (req, res, next) => {
+    const id = req.params.organizerId;
+
+    Organizer.findById(id)
+        .then( organizerFromDB => {
+            res.render("organizers/organizer-details", organizerFromDB);
+        })
+        .catch( e => {
+            console.log("error getting organizer details from DB", e);
+            next(e);
+        });
+});
+
 
 module.exports = router;
